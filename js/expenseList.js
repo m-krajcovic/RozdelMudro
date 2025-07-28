@@ -15,25 +15,25 @@ export function renderExpenseList(container, expenses) {
     return;
   }
   const table = document.createElement('table');
-  table.style.width = '100%';
-  table.style.borderCollapse = 'collapse';
+  table.className = 'w-full table-auto mb-4';
   const header = document.createElement('thead');
   header.innerHTML = `
-    <tr style="text-align:left; border-bottom:1px solid #ccc;">
-      <th>Description</th>
-      <th>Payer</th>
-      <th>Amount</th>
-      <th>Recipients</th>
+    <tr class="text-left border-b">
+      <th class="px-2 py-1">Description</th>
+      <th class="px-2 py-1">Payer</th>
+      <th class="px-2 py-1">Amount</th>
+      <th class="px-2 py-1">Recipients</th>
     </tr>
   `;
   const body = document.createElement('tbody');
   expenses.forEach(exp => {
     const row = document.createElement('tr');
+    row.className = 'border-b';
     row.innerHTML = `
-      <td style="padding:0.5rem 0;">${exp.description}</td>
-      <td style="padding:0.5rem 0;">${exp.payer}</td>
-      <td style="padding:0.5rem 0;">${exp.amount.toFixed(2)}</td>
-      <td style="padding:0.5rem 0;">${exp.recipients.join(', ')}</td>
+      <td class="px-2 py-1">${exp.description}</td>
+      <td class="px-2 py-1">${exp.payer}</td>
+      <td class="px-2 py-1">${exp.amount.toFixed(2)}</td>
+      <td class="px-2 py-1">${exp.recipients.join(', ')}</td>
     `;
     body.appendChild(row);
   });

@@ -11,17 +11,22 @@
 export function renderSetupScreen(container) {
   const form = document.createElement('form');
   form.innerHTML = `
-    <h2>Configure Expense Splitter</h2>
+    <h2 class="text-xl font-semibold mb-4">Configure Expense Splitter</h2>
+    <div class="mb-4">
+      <label for="sheet-input" class="block mb-1">Google Sheet ID:</label>
+      <input id="sheet-input" name="sheet" type="text"
+             class="w-full max-w-lg border border-gray-300 rounded p-2" />
+    </div>
+    <div class="mb-4">
+      <label for="users-input" class="block mb-1">Users (comma-separated):</label>
+      <input id="users-input" name="users" type="text" required
+             class="w-full max-w-lg border border-gray-300 rounded p-2" />
+    </div>
     <div>
-      <label for="sheet-input">Google Sheet ID:</label><br>
-      <input id="sheet-input" name="sheet" type="text" style="width:100%; max-width:400px;">
-    </div>
-    <div style="margin-top:1rem;">
-      <label for="users-input">Users (comma-separated):</label><br>
-      <input id="users-input" name="users" type="text" required style="width:100%; max-width:400px;">
-    </div>
-    <div style="margin-top:1rem;">
-      <button type="submit">Start</button>
+      <button type="submit"
+              class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        Start
+      </button>
     </div>
   `;
   form.addEventListener('submit', async e => {

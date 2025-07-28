@@ -17,30 +17,35 @@ export function renderExpenseForm(container, onSuccess) {
   // Try to remember last payer
   const lastPayer = localStorage.getItem('lastPayer') || CONFIG.USERS[0] || '';
   form.innerHTML = `
-    <h2>Add Expense</h2>
-    <div>
-      <label for="payer">Payer:</label><br>
-      <select id="payer" name="payer" required>
-        ${CONFIG.USERS.map(u => `<option value="${u}"${u===lastPayer?' selected':''}>${u}</option>`).join('')}
+    <h2 class="text-xl font-semibold mb-4">Add Expense</h2>
+    <div class="mb-4">
+      <label for="payer" class="block mb-1">Payer</label>
+      <select id="payer" name="payer" required class="w-full max-w-md border border-gray-300 rounded p-2">
+        ${CONFIG.USERS.map(u => `<option value="${u}"${u===lastPayer ? ' selected' : ''}>${u}</option>`).join('')}
       </select>
     </div>
-    <div style="margin-top:0.5rem;">
-      <label for="description">Description:</label><br>
-      <input id="description" name="description" type="text" required style="width:100%;">
+    <div class="mb-4">
+      <label for="description" class="block mb-1">Description</label>
+      <input id="description" name="description" type="text" required class="w-full max-w-md border border-gray-300 rounded p-2" />
     </div>
-    <div style="margin-top:0.5rem;">
-      <label for="amount">Amount:</label><br>
-      <input id="amount" name="amount" type="number" step="0.01" min="0" required">
+    <div class="mb-4">
+      <div class="flex-1">
+        <label for="amount" class="block mb-1">Amount</label>
+        <input id="amount" name="amount" type="number" step="0.01" min="0" required class="w-full max-w-md border border-gray-300 rounded p-2" />
+      </div>
     </div>
-    <fieldset style="margin-top:0.5rem;">
-      <legend>Recipients:</legend>
-      ${CONFIG.USERS.map(u => `
-        <label style="margin-right:1rem;">
-          <input type="checkbox" name="recipients" value="${u}"> ${u}
-        </label>`).join('')}
-    </fieldset>
-    <div style="margin-top:1rem;">
-      <button type="submit">Add Expense</button>
+    <div class="mb-4">
+      <fieldset class="flex-1">
+        <legend class="font-medium mb-1">Recipients</legend>
+        <div class="flex flex-wrap gap-4">
+          ${CONFIG.USERS.map(u => `<label class="flex items-center"><input type="checkbox" name="recipients" value="${u}" class="mr-1" />${u}</label>`).join('')}
+        </div>
+      </fieldset>
+    </div>
+    <div>
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+        Add Expense
+      </button>
     </div>
   `;
   form.addEventListener('submit', async e => {

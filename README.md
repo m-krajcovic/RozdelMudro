@@ -10,6 +10,18 @@ There's a screen to view all expenses and a screen to view the total balance of 
 The expenses are stored in a Google Sheet which is used as a database. Every user has access to the same sheet.
 The group creator owns the sheet on Google Drive and can give access to other users.
 
+**Usage:**
+
+1. Open the app in your browser without parameters to configure your Sheet and users:
+   ```
+   index.html
+   ```
+2. Enter your Google Sheet ID and comma‑separated list of users, then click **Start**.
+3. The app will reload with the following URL parameters:
+   ```
+   index.html?sheet=YOUR_GOOGLE_SHEET_ID&users=Alice,Bob,Charlie
+   ```
+
 The app is a simple web app with no backend. It is written in HTML, CSS and JavaScript.
 
 To calculate the split, we first calculate the total amount of the expenses. Then we calculate the amount each person should pay.
@@ -17,3 +29,26 @@ The amount each person should pay is the total amount divided by the number of r
 Then we subtract the amount each person should pay from the total amount.
 
 This reduces the number of transactions, but it also means that you might need to pay someone who didn't pay for you.
+
+## Project Structure
+
+This is the suggested file and folder layout for the Expense Splitter application:
+
+```
+.
+├── index.html
+├── css
+│   └── styles.css
+├── js
+│   ├── app.js
+│   ├── config.js
+│   ├── googleAuth.js
+│   ├── sheetsService.js
+│   ├── setup.js
+│   ├── expenseForm.js
+│   ├── expenseList.js
+│   ├── balanceView.js
+│   └── utils.js
+├── README.md
+└── instructions.md
+```

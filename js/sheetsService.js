@@ -6,26 +6,25 @@
 import CONFIG from './config.js';
 import { getAccessToken } from './googleAuth.js';
 
-// Range name for the Expenses sheet (assumes headers in row 1)
-const EXPENSES_RANGE = 'Expenses!A2:C';
+// Range name for the Expenses sheet (assumes headers in row 1: payer, recipients, amount, description)
+const EXPENSES_RANGE = 'Expenses!A2:D';
 
 /**
  * Fetches all expenses from the Google Sheet.
  * @returns {Promise<Array<{payer: string, recipients: string[], amount: number}>>}
  */
 export async function getExpenses() {
-  if (!getAccessToken()) {
-    throw new Error('User not authenticated');
-  }
+  if (!getAccessToken()) throw new Error('User not authenticated');
   const response = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: CONFIG.SHEET_ID,
     range: EXPENSES_RANGE,
   });
   const rows = response.result.values || [];
-  return rows.map(([payer, recipients, amount]) => ({
+  return rows.map(([payer, recipients, amount, description]) => ({
     payer,
     recipients: recipients.split(',').map(s => s.trim()).filter(Boolean),
     amount: parseFloat(amount),
+    description: description || '',
   }));
 }
 
@@ -35,13 +34,12 @@ export async function getExpenses() {
  * @returns {Promise<gapi.client.Response<AppendValuesResponse>>}
  */
 export async function addExpense(expense) {
-  if (!getAccessToken()) {
-    throw new Error('User not authenticated');
-  }
+  if (!getAccessToken()) throw new Error('User not authenticated');
   const values = [[
     expense.payer,
     expense.recipients.join(','),
     expense.amount,
+    expense.description || '',
   ]];
   const resource = { values };
   return gapi.client.sheets.spreadsheets.values.append({

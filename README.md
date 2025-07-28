@@ -16,7 +16,7 @@ The group creator owns the sheet on Google Drive and can give access to other us
    ```
    index.html
    ```
-2. Enter your Google Sheet ID and comma‑separated list of users, then click **Start**.
+2. Enter your Google Sheet ID (or leave blank to auto-create a new sheet) and comma‑separated list of users, then click **Start**.
 3. The app will reload with the following URL parameters:
    ```
    index.html?sheet=YOUR_GOOGLE_SHEET_ID&users=Alice,Bob,Charlie

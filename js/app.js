@@ -26,8 +26,31 @@ async function initApp() {
     openSheetLink.href = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}`;
     openSheetLink.style.display = 'inline-block';
   }
-  // Initialize application (auth, routing, wiring up views)
+  // Initialize application (auth)
   await initAuth();
+  // Load users list from cell A1 of the Expenses sheet (comma-delimited)
+  try {
+    const resp = await gapi.client.sheets.spreadsheets.values.get({
+      spreadsheetId: CONFIG.SHEET_ID,
+      range: 'Expenses!A1',
+    });
+    const raw = (resp.result.values || [['']])[0][0] || '';
+    const users = raw.split(',').map(u => u.trim()).filter(Boolean);
+    CONFIG.USERS = users;
+    window.USERS = users;
+  } catch (err) {
+    console.error('Failed to load user list from A1:', err);
+  }
+  // Wire up Expenses nav button to fetch and render the expense list
+  const navExpenses = document.getElementById('nav-expenses');
+  if (navExpenses) {
+    navExpenses.addEventListener('click', async e => {
+      e.preventDefault();
+      const expenses = await getExpenses();
+      renderExpenseList(main, expenses);
+    });
+  }
+
   // Wire up Add Expense nav button to show the expense form
   const navAdd = document.getElementById('nav-add');
   if (navAdd) {
@@ -38,6 +61,17 @@ async function initApp() {
         const expenses = await getExpenses();
         renderExpenseList(main, expenses);
       });
+    });
+  }
+
+  // Wire up Balance nav button to fetch expenses, calculate splits, and render balances
+  const navBalance = document.getElementById('nav-balance');
+  if (navBalance) {
+    navBalance.addEventListener('click', async e => {
+      e.preventDefault();
+      const expenses = await getExpenses();
+      const balances = calculateSplits(expenses, CONFIG.USERS);
+      renderBalance(main, balances);
     });
   }
 }

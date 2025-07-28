@@ -12,6 +12,10 @@ const DISCOVERY_DOCS = [
 ];
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 
+// Cached OAuth token storage keys
+const TOKEN_KEY = 'gsi_access_token';
+const TOKEN_EXPIRY_KEY = 'gsi_access_token_expiry';
+
 let tokenClient;
 let isAuthorized = false;
 
@@ -37,10 +41,24 @@ export function initAuth() {
             }
             isAuthorized = true;
             updateSigninButtons(true);
+            // Cache token and its expiry
+            localStorage.setItem(TOKEN_KEY, tokenResponse.access_token);
+            const expiryTime = Date.now() + (tokenResponse.expires_in * 1000);
+            localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
             resolve();
           },
         });
         updateSigninButtons(false);
+        // Try to restore a cached token if still valid
+        const cachedToken = localStorage.getItem(TOKEN_KEY);
+        const cachedExpiry = Number(localStorage.getItem(TOKEN_EXPIRY_KEY));
+        if (cachedToken && cachedExpiry > Date.now()) {
+          gapi.client.setToken({ access_token: cachedToken });
+          isAuthorized = true;
+          updateSigninButtons(true);
+          resolve();
+          return;
+        }
         // Hook up sign-in/out button events
         const btnIn = document.getElementById('btn-signin');
         const btnOut = document.getElementById('btn-signout');
@@ -73,6 +91,9 @@ export function signOut() {
       gapi.client.setToken('');
       isAuthorized = false;
       updateSigninButtons(false);
+      // Clear cached token
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_EXPIRY_KEY);
     });
   }
 }

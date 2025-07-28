@@ -28,8 +28,6 @@ export function renderSetupScreen(container) {
     e.preventDefault();
     const data = new FormData(form);
     const sheet = (data.get('sheet') || '').trim();
-    const usersRaw = data.get('users') || '';
-    const users = usersRaw.split(',').map(u => u.trim()).filter(Boolean).join(',');
     // If no sheet ID provided, create a new Google Sheet via Sheets API
     let targetSheet = sheet;
     if (!targetSheet) {
@@ -39,6 +37,7 @@ export function renderSetupScreen(container) {
         await initAuth();
         const response = await gapi.client.sheets.spreadsheets.create({
           properties: { title: 'Expense Splitter' },
+          sheets: {title: "Expenses"},
         });
         targetSheet = response.result.spreadsheetId;
       } catch (err) {
@@ -47,7 +46,20 @@ export function renderSetupScreen(container) {
         return;
       }
     }
-    const params = new URLSearchParams({ sheet: targetSheet, users });
+    // Write users list into cell A1 (comma-delimited)
+    try {
+      await gapi.client.sheets.spreadsheets.values.update({
+        spreadsheetId: targetSheet,
+        range: 'Expenses!A1',
+        valueInputOption: 'RAW',
+        resource: { values: [[ data.get('users') ]] },
+      });
+    } catch (err) {
+      console.error('Failed to write users to A1:', err);
+      alert('Error saving user list to sheet. See console for details.');
+      return;
+    }
+    const params = new URLSearchParams({ sheet: targetSheet });
     window.location.href = `${window.location.pathname}?${params.toString()}`;
   });
   container.innerHTML = '';

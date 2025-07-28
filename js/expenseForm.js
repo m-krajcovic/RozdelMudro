@@ -14,21 +14,23 @@ import { addExpense } from './sheetsService.js';
 export function renderExpenseForm(container, onSuccess) {
   container.innerHTML = '';
   const form = document.createElement('form');
+  // Try to remember last payer
+  const lastPayer = localStorage.getItem('lastPayer') || CONFIG.USERS[0] || '';
   form.innerHTML = `
     <h2>Add Expense</h2>
     <div>
       <label for="payer">Payer:</label><br>
       <select id="payer" name="payer" required>
-        ${CONFIG.USERS.map(u => `<option value="${u}">${u}</option>`).join('')}
+        ${CONFIG.USERS.map(u => `<option value="${u}"${u===lastPayer?' selected':''}>${u}</option>`).join('')}
       </select>
     </div>
     <div style="margin-top:0.5rem;">
       <label for="description">Description:</label><br>
-      <input id="description" name="description" type="text" required style="width:100%; max-width:400px;">
+      <input id="description" name="description" type="text" required style="width:100%;">
     </div>
     <div style="margin-top:0.5rem;">
       <label for="amount">Amount:</label><br>
-      <input id="amount" name="amount" type="number" step="0.01" min="0" required style="width:100px;">
+      <input id="amount" name="amount" type="number" step="0.01" min="0" required">
     </div>
     <fieldset style="margin-top:0.5rem;">
       <legend>Recipients:</legend>
@@ -55,6 +57,8 @@ export function renderExpenseForm(container, onSuccess) {
       return;
     }
     try {
+      // Cache last payer selection
+      localStorage.setItem('lastPayer', payer);
       await addExpense({ payer, recipients, amount, description });
       form.reset();
       if (typeof onSuccess === 'function') onSuccess();

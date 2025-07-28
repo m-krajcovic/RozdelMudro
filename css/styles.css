@@ -23,4 +23,48 @@ nav a {
   text-decoration: none;
 }
 
+/* Responsive header navigation */
+header nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Main content padding */
+main {
+  padding: 1rem;
+}
+
+/* Form controls */
+input[type="text"],
+input[type="number"],
+select,
+fieldset {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Table styling and responsiveness */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+th, td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  header {
+    text-align: center;
+  }
+  header nav {
+    justify-content: center;
+  }
+}
+
 /* Additional styles go here */

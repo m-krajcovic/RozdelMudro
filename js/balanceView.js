@@ -1,7 +1,9 @@
 /**
  * balanceView.js
- * Renders the balance summary view.
+ * Renders the balance summary view and allows settling debts.
  */
+import { addExpense, getExpenses } from './sheetsService.js';
+import { calculateSplits } from './utils.js';
 
 /**
  * Renders the balance summary for each user in a table.
@@ -64,7 +66,7 @@ export function renderBalance(container, balances) {
     const row = document.createElement('tr');
     row.className = 'border-b';
     const bal = balances[user];
-    const balStr = bal >= 0 ? `+$${bal.toFixed(2)}` : `-$${Math.abs(bal).toFixed(2)}`;
+    const balStr = bal >= 0 ? `+${bal.toFixed(2)}` : `-${Math.abs(bal).toFixed(2)}`;
     row.innerHTML = `
       <td class="px-2 py-1">${user}</td>
       <td class="px-2 py-1">${balStr}</td>
@@ -82,10 +84,33 @@ export function renderBalance(container, balances) {
     const sec = document.createElement('div');
     sec.innerHTML = `<h3 class="text-lg font-semibold mb-2">Settlements</h3>`;
     const ul = document.createElement('ul');
-    ul.className = 'list-disc ml-6 mb-4';
+    ul.className = 'list-none ml-6 mb-4';
     suggestions.forEach(s => {
       const li = document.createElement('li');
+      li.className = 'm-1'
       li.textContent = `${s.from} pays ${s.to} $${s.amount.toFixed(2)}`;
+      const btn = document.createElement('button');
+      btn.textContent = 'Settle up';
+      btn.className = 'ml-2 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-sm';
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          await addExpense({
+            payer: s.from,
+            recipients: [s.to],
+            amount: s.amount,
+            description: `Settlement payment from ${s.from} to ${s.to}`
+          });
+          const expenses = await getExpenses();
+          const newBalances = calculateSplits(expenses, Object.keys(balances));
+          renderBalance(container, newBalances);
+        } catch (err) {
+          console.error('Settlement failed', err);
+          alert('Failed to record settlement. See console for details.');
+          btn.disabled = false;
+        }
+      });
+      li.appendChild(btn);
       ul.appendChild(li);
     });
     sec.appendChild(ul);

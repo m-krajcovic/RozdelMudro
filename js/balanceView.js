@@ -4,6 +4,7 @@
  */
 import { addExpense, getExpenses } from './sheetsService.js';
 import { calculateSplits } from './utils.js';
+import CONFIG from './config.js';
 
 /**
  * Renders the balance summary for each user in a table.
@@ -45,7 +46,25 @@ function computeSettlements(balances) {
 
 export function renderBalance(container, balances) {
   container.innerHTML = '';
-  const users = Object.keys(balances);
+  const lastPayer = localStorage.getItem('lastPayer') || CONFIG.USERS[0] || '';
+  const storedFilter = localStorage.getItem('balanceFilter');
+  const filterUser = storedFilter !== null ? storedFilter : (lastPayer || 'all');
+  const filterDiv = document.createElement('div');
+  filterDiv.className = 'mb-4';
+  filterDiv.innerHTML = `
+    <label for="balance-filter" class="block mb-1">Filter by person</label>
+    <select id="balance-filter" class="w-full max-w-md border border-gray-300 rounded p-2">
+      ${['all', ...Object.keys(balances)].map(u => `<option value="${u}"${u===filterUser ? ' selected' : ''}>${u==='all' ? 'All' : u}</option>`).join('')}
+    </select>
+  `;
+  const select = filterDiv.querySelector('#balance-filter');
+  select.addEventListener('change', () => {
+    localStorage.setItem('balanceFilter', select.value);
+    renderBalance(container, balances);
+  });
+  container.appendChild(filterDiv);
+  let users = Object.keys(balances);
+  if (filterUser !== 'all') users = users.filter(u => u === filterUser);
   if (users.length === 0) {
     container.textContent = 'No balances to display.';
     return;
@@ -78,14 +97,16 @@ export function renderBalance(container, balances) {
   table.appendChild(body);
   container.appendChild(table);
 
-  // Suggest settlements between debtors and creditors
   const suggestions = computeSettlements(balances);
-  if (suggestions.length > 0) {
+  const filteredSuggestions = filterUser === 'all'
+    ? suggestions
+    : suggestions.filter(s => s.from === filterUser || s.to === filterUser);
+  if (filteredSuggestions.length > 0) {
     const sec = document.createElement('div');
     sec.innerHTML = `<h3 class="text-lg font-semibold mb-2">Settlements</h3>`;
     const ul = document.createElement('ul');
     ul.className = 'list-none ml-6 mb-4';
-    suggestions.forEach(s => {
+    filteredSuggestions.forEach(s => {
       const li = document.createElement('li');
       li.className = 'm-1'
       li.textContent = `${s.from} pays ${s.to} $${s.amount.toFixed(2)}`;

@@ -1,12 +1,14 @@
 /**
  * expenseList.js
- * Renders the list of expenses.
+ * Renders the list of expenses and allows editing.
  */
+import { renderExpenseForm } from './expenseForm.js';
+import { getExpenses } from './sheetsService.js';
 
 /**
  * Renders the list of expenses in a simple table.
  * @param {HTMLElement} container
- * @param {Array<{payer:string,recipients:string[],amount:number,description:string}>} expenses
+ * @param {Array<{rowIndex:number,payer:string,recipients:string[],amount:number,description:string}>} expenses
  */
 export function renderExpenseList(container, expenses) {
   container.innerHTML = '';
@@ -23,6 +25,7 @@ export function renderExpenseList(container, expenses) {
       <th class="px-2 py-1">Payer</th>
       <th class="px-2 py-1">Amount</th>
       <th class="px-2 py-1">Recipients</th>
+      <th class="px-2 py-1">Actions</th>
     </tr>
   `;
   const body = document.createElement('tbody');
@@ -34,8 +37,19 @@ export function renderExpenseList(container, expenses) {
       <td class="px-2 py-1">${exp.payer}</td>
       <td class="px-2 py-1">${exp.amount.toFixed(2)}</td>
       <td class="px-2 py-1">${exp.recipients.join(', ')}</td>
+      <td class="px-2 py-1"><button type="button" class="edit-expense-btn bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Edit</button></td>
     `;
     body.appendChild(row);
+    const editBtn = row.querySelector('.edit-expense-btn');
+    if (editBtn) {
+      editBtn.addEventListener('click', e => {
+        e.preventDefault();
+        renderExpenseForm(container, async () => {
+          const expenses = await getExpenses();
+          renderExpenseList(container, expenses);
+        }, exp);
+      });
+    }
   });
   table.appendChild(header);
   table.appendChild(body);

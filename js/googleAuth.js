@@ -44,7 +44,9 @@ export function initAuth() {
             // Cache token and its expiry
             localStorage.setItem(TOKEN_KEY, tokenResponse.access_token);
             const expiryTime = Date.now() + (tokenResponse.expires_in * 1000);
+            setTimeout(signOut, tokenResponse.expires_in * 1000);
             localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+            signInListeners.forEach(l => l());
             resolve();
           },
         });
@@ -56,6 +58,7 @@ export function initAuth() {
           gapi.client.setToken({ access_token: cachedToken });
           isAuthorized = true;
           updateSigninButtons(true);
+          signInListeners.forEach(l => l());
           resolve();
           return;
         }
@@ -74,6 +77,10 @@ export function initAuth() {
   });
 }
 
+let signInListeners = [];
+export function addSignInListener(callback) {
+  signInListeners.push(callback);
+}
 /**
  * Prompts the user to sign in / grant permissions.
  */
@@ -95,6 +102,12 @@ export function signOut() {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(TOKEN_EXPIRY_KEY);
     });
+  } {
+    isAuthorized = false;
+    updateSigninButtons(false);
+    // Clear cached token
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRY_KEY);
   }
 }
 
@@ -107,6 +120,8 @@ export function getAccessToken() {
   return token ? token.access_token : null;
 }
 
+
+let authorizedElements = [];
 /**
  * Shows or hides sign-in/out buttons based on auth status.
  * @param {boolean} authorized
@@ -122,4 +137,19 @@ function updateSigninButtons(authorized) {
     btnSignIn.style.display = 'inline-block';
     btnSignOut.style.display = 'none';
   }
+  authorizedElements.forEach(e => {
+    e.style.display = authorized ? 'block' : 'none';
+  });
 }
+
+
+/**
+ * Adds an element to the list of authorized elements.
+ * @param {Element} element
+ */
+export function addAuthorizedElement(elements) {
+  authorizedElements = authorizedElements.concat(elements);
+  updateSigninButtons(isAuthorized);
+}
+
+export function getIsAuthorized() { return isAuthorized; }

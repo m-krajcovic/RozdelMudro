@@ -4,8 +4,8 @@
  */
 
 import CONFIG from './config.js';
-import { initAuth } from './googleAuth.js';
-import { getExpenses, addExpense } from './sheetsService.js';
+import { addAuthorizedElement, initAuth, getIsAuthorized, addSignInListener } from './googleAuth.js';
+import { getExpenses } from './sheetsService.js';
 import { renderExpenseForm } from './expenseForm.js';
 import { renderExpenseList } from './expenseList.js';
 import { renderBalance } from './balanceView.js';
@@ -14,20 +14,36 @@ import { calculateSplits } from './utils.js';
 import { renderSetupScreen } from './setup.js';
 
 async function initApp() {
+  addSignInListener(postAuth);
+  addAuthorizedElement(['nav-expenses', 'nav-balance', 'nav-add'].map(id => document.getElementById(id)));
+
+
+  // Initialize application (auth)
+  await initAuth();
+
+  if (getIsAuthorized()) return;
+
+  await postAuth();
+}
+
+async function postAuth() {
   const main = document.getElementById('app');
-  // If no sheet ID provided, show setup screen
+
+  // If no sheet ID provided, show setup screen  
   if (!CONFIG.SHEET_ID) {
+    ['nav-expenses', 'nav-balance', 'nav-add'].map(id => document.getElementById(id)).forEach(e => e.style.display = 'none');
     renderSetupScreen(main);
     return;
   }
+  ['nav-expenses', 'nav-balance', 'nav-add'].map(id => document.getElementById(id)).forEach(e => e.style.display = 'inline-block');
+
   // Show link to open the Google Sheet in a new tab
   const openSheetLink = document.getElementById('nav-opensheet');
   if (openSheetLink) {
     openSheetLink.href = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}`;
     openSheetLink.style.display = 'inline-block';
   }
-  // Initialize application (auth)
-  await initAuth();
+
   // Load users list from cell A1 of the Expenses sheet (comma-delimited)
   try {
     const resp = await gapi.client.sheets.spreadsheets.values.get({
@@ -74,6 +90,8 @@ async function initApp() {
       renderBalance(main, balances);
     });
   }
+
+  navAdd.click();
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

@@ -35,3 +35,10 @@ export function calculateSplits(expenses, users) {
   });
   return balances;
 }
+
+export function loader(callback) {
+  const loader = document.getElementById('loader');
+  loader.style.display = 'block';
+  callback();
+  loader.style.display = 'none';
+}

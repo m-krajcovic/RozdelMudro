@@ -13,8 +13,8 @@ export function renderSetupScreen(container) {
   form.innerHTML = `
     <h2 class="text-xl font-semibold mb-4">Configure Expense Splitter</h2>
     <div class="mb-4">
-      <label for="sheet-input" class="block mb-1">Google Sheet ID:</label>
-      <input id="sheet-input" name="sheet" type="text"
+      <label for="sheet-input" class="block mb-1">Sheet title:</label>
+      <input id="sheet-input" name="sheet" type="text" required
              class="w-full max-w-lg border border-gray-300 rounded p-2" />
     </div>
     <div class="mb-4">
@@ -25,24 +25,24 @@ export function renderSetupScreen(container) {
     <div>
       <button type="submit"
               class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-        Start
+        Create
       </button>
     </div>
   `;
   form.addEventListener('submit', async e => {
     e.preventDefault();
     const data = new FormData(form);
-    const sheet = (data.get('sheet') || '').trim();
     // If no sheet ID provided, create a new Google Sheet via Sheets API
-    let targetSheet = sheet;
+    let sheetTitle = data.get('sheet');
+    let targetSheet = '';
     if (!targetSheet) {
       // Lazy-load authentication and create sheet
       try {
         const { initAuth } = await import('./googleAuth.js');
         await initAuth();
         const response = await gapi.client.sheets.spreadsheets.create({
-          properties: { title: 'Expense Splitter' },
-          sheets: {title: "Expenses"},
+          properties: { title: sheetTitle },
+          sheets: [{properties: {title: "Expenses"}} ],
         });
         targetSheet = response.result.spreadsheetId;
       } catch (err) {

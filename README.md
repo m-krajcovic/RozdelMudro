@@ -40,6 +40,11 @@ npm install
 npm run build
 ```
 
+This builds both:
+
+- `dist/app.bundle.js` (all JS bundled via esbuild)
+- `dist/styles.css` (Tailwind CSS built against your templates)
+
 This produces `dist/app.bundle.js` and updates `index.html` to load that bundle instead of the individual modules.
 You can then open `index.html` in your browser as usual.
 

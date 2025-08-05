@@ -44,6 +44,38 @@ function computeSettlements(balances) {
   return suggestions;
 }
 
+/**
+ * Show a modal popup with the payment notes for a given user.
+ * @param {string} user
+ */
+function showUserNoteModal(user) {
+  const note = CONFIG.USER_NOTES[user] || '(no payment info)';
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', zIndex: '1000'
+  });
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem',
+    maxWidth: '90%', maxHeight: '80%', overflowY: 'auto'
+  });
+  const title = document.createElement('h4');
+  title.textContent = `Payment info for ${user}`;
+  title.className = 'text-lg font-semibold mb-2';
+  const content = document.createElement('p');
+  content.textContent = note;
+  content.className = 'mb-4';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Close';
+  closeBtn.className = 'bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400';
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+  modal.append(title, content, closeBtn);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+
 export function renderBalance(container, balances) {
   container.innerHTML = '';
   const lastPayer = localStorage.getItem('lastPayer') || CONFIG.USERS[0] || '';
@@ -108,8 +140,15 @@ export function renderBalance(container, balances) {
     ul.className = 'list-none ml-6 mb-4';
     filteredSuggestions.forEach(s => {
       const li = document.createElement('li');
-      li.className = 'm-1'
-      li.textContent = `${s.from} pays ${s.to} $${s.amount.toFixed(2)}`;
+      li.className = 'm-1';
+      li.textContent = '';
+      li.appendChild(document.createTextNode(`${s.from} pays `));
+      const toLink = document.createElement('button');
+      toLink.textContent = s.to;
+      toLink.className = 'text-blue-600 underline bg-transparent p-0 m-0';
+      toLink.addEventListener('click', () => showUserNoteModal(s.to));
+      li.appendChild(toLink);
+      li.appendChild(document.createTextNode(` $${s.amount.toFixed(2)}`));
       const btn = document.createElement('button');
       btn.textContent = 'Settle up';
       btn.className = 'ml-2 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-sm';

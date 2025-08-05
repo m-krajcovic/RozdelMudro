@@ -44,16 +44,25 @@ async function postAuth() {
     openSheetLink.style.display = 'inline-block';
   }
 
-  // Load users list from the 'Users' sheet (one user per row in column A)
+  // Load users list and payment notes from the 'Users' sheet (columns A and B)
   try {
     const resp = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: CONFIG.SHEET_ID,
-      range: 'Users!A:A',
+      range: 'Users!A:B',
     });
     const rows = resp.result.values || [];
-    const users = rows.map(r => (r[0] || '').trim()).filter(Boolean);
+    const users = [];
+    const notes = {};
+    rows.forEach(r => {
+      const name = (r[0] || '').trim();
+      if (!name) return;
+      users.push(name);
+      notes[name] = (r[1] || '').trim();
+    });
     CONFIG.USERS = users;
+    CONFIG.USER_NOTES = notes;
     window.USERS = users;
+    window.USER_NOTES = notes;
   } catch (err) {
     console.error("Failed to load user list from 'Users' sheet:", err);
   }

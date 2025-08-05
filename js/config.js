@@ -15,6 +15,8 @@ const CONFIG = {
   SHEET_ID,
   // Users list loaded dynamically from the 'Users' sheet, one user name per row in column A
   USERS: [],
+  // Optional payment notes loaded from column B in the 'Users' sheet (e.g. IBAN or payment URL)
+  USER_NOTES: {},
 };
 
 // Expose sheet ID globally for convenience

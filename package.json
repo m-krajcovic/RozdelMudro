@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "esbuild js/app.js --bundle --minify --sourcemap --outfile=dist/app.bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.18.0"
+  }
+}

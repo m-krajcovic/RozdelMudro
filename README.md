@@ -30,6 +30,19 @@ Then we subtract the amount each person should pay from the total amount.
 
 This reduces the number of transactions, but it also means that you might need to pay someone who didn't pay for you.
 
+## Building for production
+
+This app uses [esbuild](https://esbuild.github.io/) to bundle all JavaScript into a single file for production.
+After cloning the repo, run:
+
+```bash
+npm install
+npm run build
+```
+
+This produces `dist/app.bundle.js` and updates `index.html` to load that bundle instead of the individual modules.
+You can then open `index.html` in your browser as usual.
+
 ## Project Structure
 
 This is the suggested file and folder layout for the Expense Splitter application:

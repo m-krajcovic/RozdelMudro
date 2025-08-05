@@ -36,13 +36,16 @@ export function renderSetupScreen(container) {
     let sheetTitle = data.get('sheet');
     let targetSheet = '';
     if (!targetSheet) {
-      // Lazy-load authentication and create sheet
+      // Lazy-load authentication and create sheet with Expenses and Users tabs
       try {
         const { initAuth } = await import('./googleAuth.js');
         await initAuth();
         const response = await gapi.client.sheets.spreadsheets.create({
           properties: { title: sheetTitle },
-          sheets: [{properties: {title: "Expenses"}} ],
+          sheets: [
+            { properties: { title: 'Expenses' } },
+            { properties: { title: 'Users' } },
+          ],
         });
         targetSheet = response.result.spreadsheetId;
       } catch (err) {
@@ -51,16 +54,21 @@ export function renderSetupScreen(container) {
         return;
       }
     }
-    // Write users list into cell A1 (comma-delimited)
+    // Write users list into the 'Users' sheet (one user per row in column A)
+    const rawUsers = data.get('users');
+    const userRows = rawUsers
+      .split(',')
+      .map(u => [u.trim()])
+      .filter(r => r[0]);
     try {
       await gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: targetSheet,
-        range: 'Expenses!A1',
+        range: 'Users!A:A',
         valueInputOption: 'RAW',
-        resource: { values: [[ data.get('users') ]] },
+        resource: { values: userRows },
       });
     } catch (err) {
-      console.error('Failed to write users to A1:', err);
+      console.error("Failed to write users to 'Users' sheet:", err);
       alert('Error saving user list to sheet. See console for details.');
       return;
     }

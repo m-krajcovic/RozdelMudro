@@ -7,7 +7,7 @@ import CONFIG from './config.js';
 import { getAccessToken } from './googleAuth.js';
 
 // Range name for the Expenses sheet (assumes headers in row 1: payer, recipients, amount, description)
-const EXPENSES_RANGE = 'Expenses!A2:D';
+const EXPENSES_RANGE = 'Expenses!A1:D';
 
 /**
  * Fetches all expenses from the Google Sheet.

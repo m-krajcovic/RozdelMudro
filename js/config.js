@@ -13,7 +13,7 @@ const CONFIG = {
   API_KEY: 'AIzaSyBBeIXuQ-wtfz8KSd_COIMkSAxznXMr_7U',
   // The Google Sheet to use for expenses and user list
   SHEET_ID,
-  // Users list loaded dynamically from the sheet's first row
+  // Users list loaded dynamically from the 'Users' sheet, one user name per row in column A
   USERS: [],
 };
 

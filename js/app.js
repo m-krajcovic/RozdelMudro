@@ -44,18 +44,18 @@ async function postAuth() {
     openSheetLink.style.display = 'inline-block';
   }
 
-  // Load users list from cell A1 of the Expenses sheet (comma-delimited)
+  // Load users list from the 'Users' sheet (one user per row in column A)
   try {
     const resp = await gapi.client.sheets.spreadsheets.values.get({
       spreadsheetId: CONFIG.SHEET_ID,
-      range: 'Expenses!A1',
+      range: 'Users!A:A',
     });
-    const raw = (resp.result.values || [['']])[0][0] || '';
-    const users = raw.split(',').map(u => u.trim()).filter(Boolean);
+    const rows = resp.result.values || [];
+    const users = rows.map(r => (r[0] || '').trim()).filter(Boolean);
     CONFIG.USERS = users;
     window.USERS = users;
   } catch (err) {
-    console.error('Failed to load user list from A1:', err);
+    console.error("Failed to load user list from 'Users' sheet:", err);
   }
   // Wire up Expenses nav button to fetch and render the expense list
   const navExpenses = document.getElementById('nav-expenses');

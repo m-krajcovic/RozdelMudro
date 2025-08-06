@@ -100,7 +100,7 @@ async function postAuth() {
     });
   }
 
-  navAdd.click();
+  navBalance.click();
 }
 
 document.addEventListener('DOMContentLoaded', initApp);

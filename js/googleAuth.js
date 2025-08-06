@@ -20,6 +20,18 @@ let tokenClient;
 let isAuthorized = false;
 
 /**
+ * Schedule a silent token refresh just before the current token expires.
+ * @param {number} expiresIn  Token lifetime in seconds
+ */
+function scheduleTokenRefresh(expiresIn) {
+  // Refresh a minute before expiry, or halfway if expiry is short
+  const refreshDelay = Math.max((expiresIn - 60) * 1000, (expiresIn * 1000) / 2);
+  setTimeout(() => {
+    tokenClient.requestAccessToken({ prompt: '' });
+  }, refreshDelay);
+}
+
+/**
  * Initializes gapi client and Google Identity token client.
  * @returns {Promise<void>}
  */
@@ -41,11 +53,12 @@ export function initAuth() {
             }
             isAuthorized = true;
             updateSigninButtons(true);
-            // Cache token and its expiry
+            // Cache token and its expiry, and schedule silent refresh
             localStorage.setItem(TOKEN_KEY, tokenResponse.access_token);
             const expiryTime = Date.now() + (tokenResponse.expires_in * 1000);
-            setTimeout(signOut, tokenResponse.expires_in * 1000);
             localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
+            // Refresh the access token a bit before it expires (silent, no prompt)
+            scheduleTokenRefresh(tokenResponse.expires_in);
             signInListeners.forEach(l => l());
             resolve();
           },
@@ -58,6 +71,9 @@ export function initAuth() {
           gapi.client.setToken({ access_token: cachedToken });
           isAuthorized = true;
           updateSigninButtons(true);
+          // Schedule silent refresh based on remaining lifetime
+          const remainingSecs = (cachedExpiry - Date.now()) / 1000;
+          scheduleTokenRefresh(remainingSecs);
           signInListeners.forEach(l => l());
           resolve();
           return;

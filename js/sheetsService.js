@@ -72,3 +72,46 @@ export async function addExpense(expense) {
     resource,
   });
 }
+
+// Internal cache for the Expenses sheet ID
+let EXPENSES_SHEET_ID = null;
+
+/**
+ * Retrieves the sheetId for the "Expenses" tab via spreadsheet metadata.
+ * @returns {Promise<number>}
+ */
+async function getExpensesSheetId() {
+  if (EXPENSES_SHEET_ID != null) return EXPENSES_SHEET_ID;
+  const meta = await gapi.client.sheets.spreadsheets.get({
+    spreadsheetId: CONFIG.SHEET_ID,
+    fields: 'sheets(properties(sheetId,title))',
+  });
+  const sheet = meta.result.sheets.find(s => s.properties.title === 'Expenses');
+  if (!sheet) throw new Error('Expenses sheet not found');
+  EXPENSES_SHEET_ID = sheet.properties.sheetId;
+  return EXPENSES_SHEET_ID;
+}
+
+/**
+ * Deletes a row from the Expenses sheet.
+ * @param {number} rowIndex 1-based sheet row index to delete
+ * @returns {Promise<gapi.client.Response>} batchUpdate response
+ */
+export async function deleteExpense(rowIndex) {
+  if (!getAccessToken()) throw new Error('User not authenticated');
+  const sheetId = await getExpensesSheetId();
+  const requests = [{
+    deleteDimension: {
+      range: {
+        sheetId,
+        dimension: 'ROWS',
+        startIndex: rowIndex - 1,
+        endIndex: rowIndex,
+      }
+    }
+  }];
+  return gapi.client.sheets.spreadsheets.batchUpdate({
+    spreadsheetId: CONFIG.SHEET_ID,
+    resource: { requests }
+  });
+}

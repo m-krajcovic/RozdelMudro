@@ -3,7 +3,7 @@
  * Renders the list of expenses and allows editing.
  */
 import { renderExpenseForm } from './expenseForm.js';
-import { getExpenses } from './sheetsService.js';
+import { getExpenses, deleteExpense } from './sheetsService.js';
 
 /**
  * Renders the list of expenses in a simple table.
@@ -37,7 +37,10 @@ export function renderExpenseList(container, expenses) {
       <td class="px-2 py-1">${exp.payer}</td>
       <td class="px-2 py-1">${exp.amount.toFixed(2)}</td>
       <td class="px-2 py-1">${exp.recipients.join(', ')}</td>
-      <td class="px-2 py-1"><button type="button" class="edit-expense-btn bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Edit</button></td>
+    <td class="px-2 py-1">
+      <button type="button" class="edit-expense-btn bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">Edit</button>
+      <button type="button" class="delete-expense-btn ml-2 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">Delete</button>
+    </td>
     `;
     body.appendChild(row);
     const editBtn = row.querySelector('.edit-expense-btn');
@@ -48,6 +51,21 @@ export function renderExpenseList(container, expenses) {
           const expenses = await getExpenses();
           renderExpenseList(container, expenses);
         }, exp);
+      });
+    }
+    const delBtn = row.querySelector('.delete-expense-btn');
+    if (delBtn) {
+      delBtn.addEventListener('click', async e => {
+        e.preventDefault();
+        if (!confirm(`Delete expense "${exp.description}" for ${exp.payer}?`)) return;
+        try {
+          await deleteExpense(exp.rowIndex);
+          const updated = await getExpenses();
+          renderExpenseList(container, updated);
+        } catch (err) {
+          console.error('Failed to delete expense', err);
+          alert('Error deleting expense. See console for details.');
+        }
       });
     }
   });

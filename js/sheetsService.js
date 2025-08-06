@@ -28,7 +28,7 @@ export async function getExpenses() {
   return rows.map((r, i) => {
     const [payer = '', recipients = '', amount = '0', description = ''] = r;
     return {
-      rowIndex: i + 2,
+      rowIndex: i + 1,
       payer,
       recipients: recipients.split(',').map(s => s.trim()).filter(Boolean),
       amount: parseFloat(amount),

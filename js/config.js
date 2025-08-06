@@ -7,6 +7,7 @@
 const SHEET_ID = new URLSearchParams(window.location.search).get('sheet');
 
 const CONFIG = {
+  APP_ID: '649159303626',
   // Google OAuth Client ID (from README)
   GOOGLE_CLIENT_ID: '649159303626-ihv57vmqcgeoug66qrbde8ns9p42sud8.apps.googleusercontent.com',
   // API key for Google APIs (e.g. Sheets API)

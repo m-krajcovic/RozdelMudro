@@ -76,7 +76,6 @@ export function initAuth() {
           scheduleTokenRefresh(remainingSecs);
           signInListeners.forEach(l => l());
           resolve();
-          return;
         }
         // Hook up sign-in/out button events
         const btnIn = document.getElementById('btn-signin');
@@ -108,6 +107,7 @@ export function signIn() {
  * Signs out the user by revoking the current token.
  */
 export function signOut() {
+  console.log("signout")
   const token = gapi.client.getToken();
   if (token?.access_token) {
     google.accounts.oauth2.revoke(token.access_token, () => {
@@ -117,6 +117,8 @@ export function signOut() {
       // Clear cached token
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(TOKEN_EXPIRY_KEY);
+
+      window.location.href = '/';
     });
   } {
     isAuthorized = false;
@@ -124,6 +126,8 @@ export function signOut() {
     // Clear cached token
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    
+    window.location.href = '/';
   }
 }
 

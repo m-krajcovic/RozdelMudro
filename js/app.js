@@ -12,6 +12,7 @@ import { renderBalance } from './balanceView.js';
 import { calculateSplits } from './utils.js';
 
 import { renderSetupScreen } from './setup.js';
+import { renderSheetPicker } from './sheetPicker.js';
 
 async function initApp() {
   addSignInListener(postAuth);
@@ -65,6 +66,10 @@ async function postAuth() {
     window.USER_NOTES = notes;
   } catch (err) {
     console.error("Failed to load user list from 'Users' sheet:", err);
+    // If user is signed in but lacks permission, let them pick another spreadsheet
+    ['nav-expenses', 'nav-balance', 'nav-add'].forEach(id => document.getElementById(id).style.display = 'none');
+    renderSheetPicker(main);
+    return;
   }
   // Wire up Expenses nav button to fetch and render the expense list
   const navExpenses = document.getElementById('nav-expenses');

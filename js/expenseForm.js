@@ -71,7 +71,6 @@ export function renderExpenseForm(container, onSuccess, expense) {
       const payload = { payer, recipients, amount, description };
       if (expense && expense.rowIndex) payload.rowIndex = expense.rowIndex;
       await addExpense(payload);
-      form.reset();
       if (typeof onSuccess === 'function') onSuccess();
     } catch (err) {
       console.error('Error adding expense:', err);

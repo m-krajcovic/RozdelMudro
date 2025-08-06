@@ -17,6 +17,8 @@ const CONFIG = {
   USERS: [],
   // Optional payment notes loaded from column B in the 'Users' sheet (e.g. IBAN or payment URL)
   USER_NOTES: {},
+  // Rounding threshold: ignore tiny net balances under this absolute value (e.g. cents)
+  BALANCE_EPSILON: 0.1,
 };
 
 // Expose sheet ID globally for convenience

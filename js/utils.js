@@ -10,6 +10,16 @@
  * @param {string[]} users
  * @returns {{[user:string]:number}}
  */
+import CONFIG from './config.js';
+
+/**
+ * Calculate net balance for each user based on expenses.
+ * Positive balance means the user is owed money; negative means they owe money.
+ * Balances smaller than CONFIG.BALANCE_EPSILON (absolute) are snapped to zero.
+ * @param {Array<{payer:string,recipients:string[],amount:number}>} expenses
+ * @param {string[]} users
+ * @returns {{[user:string]:number}}
+ */
 export function calculateSplits(expenses, users) {
   const balances = {};
   // Initialize balances
@@ -31,6 +41,12 @@ export function calculateSplits(expenses, users) {
     // Payer is credited the full amount
     if (balances[payer] != null) {
       balances[payer] += amount;
+    }
+  });
+  // Snap tiny rounding errors to zero
+  users.forEach(u => {
+    if (Math.abs(balances[u]) < CONFIG.BALANCE_EPSILON) {
+      balances[u] = 0;
     }
   });
   return balances;

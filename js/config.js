@@ -7,11 +7,12 @@
 const SHEET_ID = new URLSearchParams(window.location.search).get('sheet');
 
 const CONFIG = {
-  APP_ID: '649159303626',
-  // Google OAuth Client ID (from README)
-  GOOGLE_CLIENT_ID: '649159303626-ihv57vmqcgeoug66qrbde8ns9p42sud8.apps.googleusercontent.com',
+  // Build-time injection via environment variables (see .env.example)
+  APP_ID: process.env.APP_ID,
+  // Google OAuth Client ID
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   // API key for Google APIs (e.g. Sheets API)
-  API_KEY: 'AIzaSyBBeIXuQ-wtfz8KSd_COIMkSAxznXMr_7U',
+  API_KEY: process.env.API_KEY,
   // The Google Sheet to use for expenses and user list
   SHEET_ID,
   // Users list loaded dynamically from the 'Users' sheet, one user name per row in column A

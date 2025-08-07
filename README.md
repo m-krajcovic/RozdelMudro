@@ -33,7 +33,14 @@ This reduces the number of transactions, but it also means that you might need t
 ## Building for production
 
 This app uses [esbuild](https://esbuild.github.io/) to bundle all JavaScript into a single file for production.
-After cloning the repo, run:
+After cloning the repo, copy the `.env.example` to `.env` and fill in your values:
+
+```bash
+cp .env.example .env
+# EDIT .env and set APP_ID, GOOGLE_CLIENT_ID, API_KEY
+```
+
+Then install dependencies and build:
 
 ```bash
 npm install

@@ -26,7 +26,7 @@ export function renderSheetPicker(container) {
  */
 function createPicker() {
     gapi.load('picker', () => {
-      const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
+      const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS).setFileIds(CONFIG.SHEET_ID);
       const picker = new google.picker.PickerBuilder()
         .addView(view)
         .setOAuthToken(gapi.client.getToken()?.access_token)

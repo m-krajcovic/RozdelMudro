@@ -2,9 +2,9 @@
 name: Deploy static content to Pages
 
 env:
-  APP_ID=${{vars.APP_ID}}
-  GOOGLE_CLIENT_ID=${{vars.GOOGLE_CLIENT_ID}}
-  API_KEY=${{secrets.API_KEY}}
+  APP_ID: ${{vars.APP_ID}}
+  GOOGLE_CLIENT_ID: ${{vars.GOOGLE_CLIENT_ID}}
+  API_KEY: ${{secrets.API_KEY}}
 
 on:
   # Runs on pushes targeting the default branch

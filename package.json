@@ -7,7 +7,7 @@
     "dev:css": "tailwindcss -i css/styles.css -o dist/styles.css --watch",
     "_dev:js": "esbuild js/app.js --bundle --sourcemap --outfile=dist/app.bundle.js --define:process.env.APP_ID=\\\"${APP_ID}\\\" --define:process.env.GOOGLE_CLIENT_ID=\\\"${GOOGLE_CLIENT_ID}\\\" --define:process.env.API_KEY=\\\"${API_KEY}\\\" --watch",
     "dev:js": "dotenv -e .env -- npm run _dev:js",
-    "serve": "live-server --port=5500 --open=index.html --watch=dist,js,index.html,css --no-browser=false",
+    "serve": "live-server --port=5500 --open=/index.html --watch=dist,js,index.html,css .",
     "dev": "run-p dev:css dev:js serve",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",

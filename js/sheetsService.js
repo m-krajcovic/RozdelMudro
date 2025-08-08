@@ -10,10 +10,6 @@ import { getAccessToken } from './googleAuth.js';
 const EXPENSES_RANGE = 'Expenses!A1:D';
 
 /**
- * Fetches all expenses from the Google Sheet.
- * @returns {Promise<Array<{payer: string, recipients: string[], amount: number}>>}
- */
-/**
  * Fetches all expenses from the Google Sheet and includes sheet row number.
  * @returns {Promise<Array<{rowIndex:number,payer:string,recipients:string[],amount:number,description:string}>>}
  */
@@ -30,7 +26,10 @@ export async function getExpenses() {
     return {
       rowIndex: i + 1,
       payer,
-      recipients: recipients.split(',').map(s => s.trim()).filter(Boolean),
+      recipients: recipients
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
       amount: parseFloat(amount),
       description,
     };
@@ -38,22 +37,19 @@ export async function getExpenses() {
 }
 
 /**
- * Appends a new expense to the Google Sheet.
- * @param {{payer: string, recipients: string[], amount: number}} expense
- * @returns {Promise<gapi.client.Response<AppendValuesResponse>>}
- */
-/**
  * Appends or updates an expense row in the sheet.
  * If expense.rowIndex is provided, updates that row; otherwise appends a new row.
  */
 export async function addExpense(expense) {
   if (!getAccessToken()) throw new Error('User not authenticated');
-  const values = [[
-    expense.payer,
-    expense.recipients.join(','),
-    expense.amount,
-    expense.description || '',
-  ]];
+  const values = [
+    [
+      expense.payer,
+      expense.recipients.join(','),
+      expense.amount,
+      expense.description || '',
+    ],
+  ];
   const resource = { values };
   if (expense.rowIndex) {
     const range = `Expenses!A${expense.rowIndex}:D${expense.rowIndex}`;
@@ -86,7 +82,9 @@ async function getExpensesSheetId() {
     spreadsheetId: CONFIG.SHEET_ID,
     fields: 'sheets(properties(sheetId,title))',
   });
-  const sheet = meta.result.sheets.find(s => s.properties.title === 'Expenses');
+  const sheet = meta.result.sheets.find(
+    (s) => s.properties.title === 'Expenses'
+  );
   if (!sheet) throw new Error('Expenses sheet not found');
   EXPENSES_SHEET_ID = sheet.properties.sheetId;
   return EXPENSES_SHEET_ID;
@@ -100,18 +98,20 @@ async function getExpensesSheetId() {
 export async function deleteExpense(rowIndex) {
   if (!getAccessToken()) throw new Error('User not authenticated');
   const sheetId = await getExpensesSheetId();
-  const requests = [{
-    deleteDimension: {
-      range: {
-        sheetId,
-        dimension: 'ROWS',
-        startIndex: rowIndex - 1,
-        endIndex: rowIndex,
-      }
-    }
-  }];
+  const requests = [
+    {
+      deleteDimension: {
+        range: {
+          sheetId,
+          dimension: 'ROWS',
+          startIndex: rowIndex - 1,
+          endIndex: rowIndex,
+        },
+      },
+    },
+  ];
   return gapi.client.sheets.spreadsheets.batchUpdate({
     spreadsheetId: CONFIG.SHEET_ID,
-    resource: { requests }
+    resource: { requests },
   });
 }

@@ -29,7 +29,7 @@ export function renderSetupScreen(container) {
       </button>
     </div>
   `;
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
     // If no sheet ID provided, create a new Google Sheet via Sheets API
@@ -58,8 +58,8 @@ export function renderSetupScreen(container) {
     const rawUsers = data.get('users');
     const userRows = rawUsers
       .split(',')
-      .map(u => [u.trim()])
-      .filter(r => r[0]);
+      .map((u) => [u.trim()])
+      .filter((r) => r[0]);
     try {
       await gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId: targetSheet,

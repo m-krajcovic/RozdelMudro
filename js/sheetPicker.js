@@ -12,7 +12,8 @@ import CONFIG from './config.js';
 export function renderSheetPicker(container) {
   container.innerHTML = '';
   const msg = document.createElement('p');
-  msg.textContent = 'RozdelMudro does not have access to the configured spreadsheet. Please select the sheet:';
+  msg.textContent =
+    'RozdelMudro does not have access to the configured spreadsheet. Please select the sheet:';
   msg.className = 'mb-4';
   const btn = document.createElement('button');
   btn.textContent = 'Select Spreadsheet';
@@ -25,17 +26,19 @@ export function renderSheetPicker(container) {
  * Loads the Picker API and builds the picker for spreadsheets.
  */
 function createPicker() {
-    gapi.load('picker', () => {
-      const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS).setFileIds(CONFIG.SHEET_ID);
-      const picker = new google.picker.PickerBuilder()
-        .addView(view)
-        .setOAuthToken(gapi.client.getToken()?.access_token)
-        .setDeveloperKey(CONFIG.API_KEY)
-        .setAppId(CONFIG.APP_ID)
-        .setCallback(pickerCallback)
-        .build();
-      picker.setVisible(true);
-    });
+  gapi.load('picker', () => {
+    const view = new google.picker.View(
+      google.picker.ViewId.SPREADSHEETS
+    ).setFileIds(CONFIG.SHEET_ID);
+    const picker = new google.picker.PickerBuilder()
+      .addView(view)
+      .setOAuthToken(gapi.client.getToken()?.access_token)
+      .setDeveloperKey(CONFIG.API_KEY)
+      .setAppId(CONFIG.APP_ID)
+      .setCallback(pickerCallback)
+      .build();
+    picker.setVisible(true);
+  });
 }
 
 /**
@@ -45,7 +48,11 @@ function createPicker() {
 function pickerCallback(data) {
   console.log(data);
   console.log(data.viewToken);
-  if (data.action === google.picker.Action.PICKED && data.docs && data.docs.length) {
+  if (
+    data.action === google.picker.Action.PICKED &&
+    data.docs &&
+    data.docs.length
+  ) {
     const doc = data.docs[0];
     const id = doc.id;
 

@@ -9,11 +9,10 @@ import { getExpenses } from './sheetsService.js';
 import { renderExpenseForm } from './expenseForm.js';
 import { renderExpenseList } from './expenseList.js';
 import { renderBalance } from './balanceView.js';
-import { calculateSplits } from './utils.js';
+import { calculateSplits , loader } from './utils.js';
 
 import { renderSetupScreen } from './setup.js';
 import { renderSheetPicker } from './sheetPicker.js';
-import { loader } from './utils.js';
 
 async function initApp() {
   toggleNavs(false);
@@ -31,13 +30,18 @@ async function initApp() {
 const NAV_IDS = ['nav-expenses', 'nav-balance', 'nav-add'];
 
 function toggleNavs(show) {
-  NAV_IDS.forEach(id => document.getElementById(id).style.display = show ? 'inline-block' : 'none');
+  NAV_IDS.forEach(
+    (id) =>
+      (document.getElementById(id).style.display = show
+        ? 'inline-block'
+        : 'none')
+  );
 }
 
 async function postAuth() {
   const main = document.getElementById('app');
 
-  // If no sheet ID provided, show setup screen  
+  // If no sheet ID provided, show setup screen
   if (!CONFIG.SHEET_ID) {
     toggleNavs(false);
     renderSetupScreen(main);
@@ -61,7 +65,7 @@ async function postAuth() {
     const rows = resp.result.values || [];
     const users = [];
     const notes = {};
-    rows.forEach(r => {
+    rows.forEach((r) => {
       const name = (r[0] || '').trim();
       if (!name) return;
       users.push(name);
@@ -81,19 +85,19 @@ async function postAuth() {
   // Wire up Expenses nav button to fetch and render the expense list
   const navExpenses = document.getElementById('nav-expenses');
   if (navExpenses) {
-    navExpenses.addEventListener('click', (async e => {
+    navExpenses.addEventListener('click', async (e) => {
       loader(async () => {
         e.preventDefault();
         const expenses = await getExpenses();
         renderExpenseList(main, expenses);
       });
-    }));
+    });
   }
 
   // Wire up Add Expense nav button to show the expense form
   const navAdd = document.getElementById('nav-add');
   if (navAdd) {
-    navAdd.addEventListener('click', (async e => {
+    navAdd.addEventListener('click', async (e) => {
       loader(async () => {
         e.preventDefault();
         // Render the expense entry form, and then refresh the expense list on success
@@ -102,20 +106,20 @@ async function postAuth() {
           renderExpenseList(main, expenses);
         });
       });
-    }));
+    });
   }
 
   // Wire up Balance nav button to fetch expenses, calculate splits, and render balances
   const navBalance = document.getElementById('nav-balance');
   if (navBalance) {
-    navBalance.addEventListener('click', (async e => {
-      loader(async () => {      
+    navBalance.addEventListener('click', async (e) => {
+      loader(async () => {
         e.preventDefault();
         const expenses = await getExpenses();
         const balances = calculateSplits(expenses, CONFIG.USERS);
         renderBalance(main, balances);
       });
-    }));
+    });
   }
 
   navBalance.click();

@@ -26,7 +26,7 @@ export function renderExpenseForm(container, onSuccess, expense) {
     <div class="mb-4">
       <label for="payer" class="block mb-1">Payer</label>
       <select id="payer" name="payer" required class="w-full max-w-md border border-gray-300 rounded p-2">
-        ${CONFIG.USERS.map(u => `<option value="${u}"${u===initialPayer ? ' selected' : ''}>${u}</option>`).join('')}
+        ${CONFIG.USERS.map((u) => `<option value="${u}"${u === initialPayer ? ' selected' : ''}>${u}</option>`).join('')}
       </select>
     </div>
     <div class="mb-4">
@@ -43,7 +43,7 @@ export function renderExpenseForm(container, onSuccess, expense) {
       <fieldset class="flex-1">
         <legend class="font-medium mb-1">Recipients</legend>
         <div class="flex flex-wrap gap-4">
-          ${CONFIG.USERS.map(u => `<label class="flex items-center"><input type="checkbox" name="recipients" value="${u}" class="mr-1"${expense && expense.recipients.includes(u) ? ' checked' : ''} />${u}</label>`).join('')}
+          ${CONFIG.USERS.map((u) => `<label class="flex items-center"><input type="checkbox" name="recipients" value="${u}" class="mr-1"${expense && expense.recipients.includes(u) ? ' checked' : ''} />${u}</label>`).join('')}
         </div>
       </fieldset>
     </div>
@@ -53,7 +53,7 @@ export function renderExpenseForm(container, onSuccess, expense) {
       </button>
     </div>
   `;
-  form.addEventListener('submit', (async e => {
+  form.addEventListener('submit', async (e) => {
     loader(async () => {
       e.preventDefault();
       const formData = new FormData(form);
@@ -79,6 +79,6 @@ export function renderExpenseForm(container, onSuccess, expense) {
         alert('Failed to add expense. See console for details.');
       }
     });
-  }));
+  });
   container.appendChild(form);
 }

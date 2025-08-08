@@ -3,11 +3,76 @@
   "scripts": {
     "build:css": "tailwindcss -i css/styles.css -o dist/styles.css --minify",
     "_build": "npm run build:css && esbuild js/app.js --bundle --minify --sourcemap --outfile=dist/app.bundle.js --define:process.env.APP_ID=\\\"${APP_ID}\\\" --define:process.env.GOOGLE_CLIENT_ID=\\\"${GOOGLE_CLIENT_ID}\\\" --define:process.env.API_KEY=\\\"${API_KEY}\\\"",
-    "build": "dotenv -e .env -- npm run _build"
+    "build": "dotenv -e .env -- npm run _build",
+    "dev:css": "tailwindcss -i css/styles.css -o dist/styles.css --watch",
+    "_dev:js": "esbuild js/app.js --bundle --sourcemap --outfile=dist/app.bundle.js --define:process.env.APP_ID=\\\"${APP_ID}\\\" --define:process.env.GOOGLE_CLIENT_ID=\\\"${GOOGLE_CLIENT_ID}\\\" --define:process.env.API_KEY=\\\"${API_KEY}\\\" --watch",
+    "dev:js": "dotenv -e .env -- npm run _dev:js",
+    "serve": "live-server --port=5500 --open=index.html --watch=dist,js,index.html,css --no-browser=false",
+    "dev": "run-p dev:css dev:js serve",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "esbuild": "^0.18.0",
     "dotenv-cli": "^7.2.0",
+    "esbuild": "^0.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-import": "^2.32.0",
+    "live-server": "^1.2.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
     "tailwindcss": "^3.3.0"
-  }
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2020": true
+    },
+    "globals": {
+      "gapi": "readonly",
+      "google": "readonly",
+      "process": "readonly"
+    },
+    "parserOptions": {
+      "ecmaVersion": 2020,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "import"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:import/recommended",
+      "prettier"
+    ],
+    "rules": {
+      "no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_"
+        }
+      ]
+    },
+    "overrides": [
+      {
+        "files": ["tailwind.config.js"],
+        "env": { "node": true }
+      }
+    ]
+  },
+  "eslintIgnore": [
+    "dist/**",
+    "node_modules/**"
+  ],
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "prettierIgnore": [
+    "dist/**",
+    "node_modules/**"
+  ]
 }

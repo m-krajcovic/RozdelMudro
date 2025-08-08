@@ -30,7 +30,7 @@ export function renderExpenseList(container, expenses) {
     </tr>
   `;
   const body = document.createElement('tbody');
-  expenses.forEach(exp => {
+  expenses.forEach((exp) => {
     const row = document.createElement('tr');
     row.className = 'border-b';
     row.innerHTML = `
@@ -46,19 +46,24 @@ export function renderExpenseList(container, expenses) {
     body.appendChild(row);
     const editBtn = row.querySelector('.edit-expense-btn');
     if (editBtn) {
-      editBtn.addEventListener('click', e => {
+      editBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        renderExpenseForm(container, async () => {
-          const expenses = await getExpenses();
-          renderExpenseList(container, expenses);
-        }, exp);
+        renderExpenseForm(
+          container,
+          async () => {
+            const expenses = await getExpenses();
+            renderExpenseList(container, expenses);
+          },
+          exp
+        );
       });
     }
     const delBtn = row.querySelector('.delete-expense-btn');
     if (delBtn) {
-      delBtn.addEventListener('click', async e => {
+      delBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        if (!confirm(`Delete expense "${exp.description}" for ${exp.payer}?`)) return;
+        if (!confirm(`Delete expense "${exp.description}" for ${exp.payer}?`))
+          return;
         loader(async () => {
           try {
             await deleteExpense(exp.rowIndex);

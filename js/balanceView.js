@@ -3,7 +3,7 @@
  * Renders the balance summary view and allows settling debts.
  */
 import { addExpense, getExpenses } from './sheetsService.js';
-import { calculateSplits } from './utils.js';
+import { calculateSplits , loader } from './utils.js';
 import CONFIG from './config.js';
 
 /**
@@ -52,14 +52,25 @@ function showUserNoteModal(user) {
   const note = CONFIG.USER_NOTES[user] || '(no payment info)';
   const overlay = document.createElement('div');
   Object.assign(overlay.style, {
-    position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', zIndex: '1000'
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '1000',
   });
   const modal = document.createElement('div');
   Object.assign(modal.style, {
-    backgroundColor: 'white', padding: '1rem', borderRadius: '0.5rem',
-    maxWidth: '90%', maxHeight: '80%', overflowY: 'auto'
+    backgroundColor: 'white',
+    padding: '1rem',
+    borderRadius: '0.5rem',
+    maxWidth: '90%',
+    maxHeight: '80%',
+    overflowY: 'auto',
   });
   const title = document.createElement('h4');
   title.textContent = `Payment info for ${user}`;
@@ -69,7 +80,8 @@ function showUserNoteModal(user) {
   content.className = 'mb-4';
   const closeBtn = document.createElement('button');
   closeBtn.textContent = 'Close';
-  closeBtn.className = 'bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400';
+  closeBtn.className =
+    'bg-gray-300 text-gray-800 px-3 py-1 rounded hover:bg-gray-400';
   closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
   modal.append(title, content, closeBtn);
   overlay.appendChild(modal);
@@ -80,13 +92,13 @@ export function renderBalance(container, balances) {
   container.innerHTML = '';
   const lastPayer = localStorage.getItem('lastPayer') || CONFIG.USERS[0] || '';
   const storedFilter = localStorage.getItem('balanceFilter');
-  const filterUser = storedFilter !== null ? storedFilter : (lastPayer || 'all');
+  const filterUser = storedFilter !== null ? storedFilter : lastPayer || 'all';
   const filterDiv = document.createElement('div');
   filterDiv.className = 'mb-4';
   filterDiv.innerHTML = `
     <label for="balance-filter" class="block mb-1">Filter by person</label>
     <select id="balance-filter" class="w-full max-w-md border border-gray-300 rounded p-2">
-      ${['all', ...Object.keys(balances)].map(u => `<option value="${u}"${u===filterUser ? ' selected' : ''}>${u==='all' ? 'All' : u}</option>`).join('')}
+      ${['all', ...Object.keys(balances)].map((u) => `<option value="${u}"${u === filterUser ? ' selected' : ''}>${u === 'all' ? 'All' : u}</option>`).join('')}
     </select>
   `;
   const select = filterDiv.querySelector('#balance-filter');
@@ -96,7 +108,7 @@ export function renderBalance(container, balances) {
   });
   container.appendChild(filterDiv);
   let users = Object.keys(balances);
-  if (filterUser !== 'all') users = users.filter(u => u === filterUser);
+  if (filterUser !== 'all') users = users.filter((u) => u === filterUser);
   if (users.length === 0) {
     container.textContent = 'No balances to display.';
     return;
@@ -113,11 +125,12 @@ export function renderBalance(container, balances) {
   `;
 
   const body = document.createElement('tbody');
-  users.forEach(user => {
+  users.forEach((user) => {
     const row = document.createElement('tr');
     row.className = 'border-b';
     const bal = balances[user];
-    const balStr = bal >= 0 ? `+${bal.toFixed(2)}` : `-${Math.abs(bal).toFixed(2)}`;
+    const balStr =
+      bal >= 0 ? `+${bal.toFixed(2)}` : `-${Math.abs(bal).toFixed(2)}`;
     row.innerHTML = `
       <td class="px-2 py-1">${user}</td>
       <td class="px-2 py-1">${balStr}</td>
@@ -130,15 +143,16 @@ export function renderBalance(container, balances) {
   container.appendChild(table);
 
   const suggestions = computeSettlements(balances);
-  const filteredSuggestions = filterUser === 'all'
-    ? suggestions
-    : suggestions.filter(s => s.from === filterUser || s.to === filterUser);
+  const filteredSuggestions =
+    filterUser === 'all'
+      ? suggestions
+      : suggestions.filter((s) => s.from === filterUser || s.to === filterUser);
   if (filteredSuggestions.length > 0) {
     const sec = document.createElement('div');
     sec.innerHTML = `<h3 class="text-lg font-semibold mb-2">Settlements</h3>`;
     const ul = document.createElement('ul');
     ul.className = 'list-none ml-6 mb-4';
-    filteredSuggestions.forEach(s => {
+    filteredSuggestions.forEach((s) => {
       const li = document.createElement('li');
       li.className = 'm-1';
       li.textContent = '';
@@ -151,7 +165,8 @@ export function renderBalance(container, balances) {
       li.appendChild(document.createTextNode(` $${s.amount.toFixed(2)}`));
       const btn = document.createElement('button');
       btn.textContent = 'Settle up';
-      btn.className = 'ml-2 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-sm';
+      btn.className =
+        'ml-2 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-sm';
       btn.addEventListener('click', async () => {
         loader(async () => {
           btn.disabled = true;
@@ -160,10 +175,13 @@ export function renderBalance(container, balances) {
               payer: s.from,
               recipients: [s.to],
               amount: s.amount,
-              description: `Settlement payment from ${s.from} to ${s.to}`
+              description: `Settlement payment from ${s.from} to ${s.to}`,
             });
             const expenses = await getExpenses();
-            const newBalances = calculateSplits(expenses, Object.keys(balances));
+            const newBalances = calculateSplits(
+              expenses,
+              Object.keys(balances)
+            );
             renderBalance(container, newBalances);
           } catch (err) {
             console.error('Settlement failed', err);

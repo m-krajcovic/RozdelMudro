@@ -23,17 +23,17 @@ import CONFIG from './config.js';
 export function calculateSplits(expenses, users) {
   const balances = {};
   // Initialize balances
-  users.forEach(u => {
+  users.forEach((u) => {
     balances[u] = 0;
   });
   // Process each expense
-  expenses.forEach(exp => {
+  expenses.forEach((exp) => {
     const { payer, recipients, amount } = exp;
     const count = recipients.length;
     if (count === 0) return;
     const share = amount / count;
     // Each recipient owes their share
-    recipients.forEach(r => {
+    recipients.forEach((r) => {
       if (balances[r] != null) {
         balances[r] -= share;
       }
@@ -44,7 +44,7 @@ export function calculateSplits(expenses, users) {
     }
   });
   // Snap tiny rounding errors to zero
-  users.forEach(u => {
+  users.forEach((u) => {
     if (Math.abs(balances[u]) < CONFIG.BALANCE_EPSILON) {
       balances[u] = 0;
     }

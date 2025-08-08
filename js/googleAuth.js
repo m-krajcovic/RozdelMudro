@@ -1,4 +1,3 @@
-/* global gapi, google */
 /**
  * googleAuth.js
  * Handles authentication for the Expense Splitter app using Google Identity Services.
@@ -25,7 +24,10 @@ let isAuthorized = false;
  */
 function scheduleTokenRefresh(expiresIn) {
   // Refresh a minute before expiry, or halfway if expiry is short
-  const refreshDelay = Math.max((expiresIn - 60) * 1000, (expiresIn * 1000) / 2);
+  const refreshDelay = Math.max(
+    (expiresIn - 60) * 1000,
+    (expiresIn * 1000) / 2
+  );
   setTimeout(() => {
     tokenClient.requestAccessToken({ prompt: '' });
   }, refreshDelay);
@@ -55,11 +57,11 @@ export function initAuth() {
             updateSigninButtons(true);
             // Cache token and its expiry, and schedule silent refresh
             localStorage.setItem(TOKEN_KEY, tokenResponse.access_token);
-            const expiryTime = Date.now() + (tokenResponse.expires_in * 1000);
+            const expiryTime = Date.now() + tokenResponse.expires_in * 1000;
             localStorage.setItem(TOKEN_EXPIRY_KEY, expiryTime.toString());
             // Refresh the access token a bit before it expires (silent, no prompt)
             scheduleTokenRefresh(tokenResponse.expires_in);
-            signInListeners.forEach(l => l());
+            signInListeners.forEach((l) => l());
             resolve();
           },
         });
@@ -74,7 +76,7 @@ export function initAuth() {
           // Schedule silent refresh based on remaining lifetime
           const remainingSecs = (cachedExpiry - Date.now()) / 1000;
           scheduleTokenRefresh(remainingSecs);
-          signInListeners.forEach(l => l());
+          signInListeners.forEach((l) => l());
           resolve();
         }
         // Hook up sign-in/out button events
@@ -107,7 +109,7 @@ export function signIn() {
  * Signs out the user by revoking the current token.
  */
 export function signOut() {
-  console.log("signout")
+  console.log('signout');
   const token = gapi.client.getToken();
   if (token?.access_token) {
     google.accounts.oauth2.revoke(token.access_token, () => {
@@ -120,13 +122,13 @@ export function signOut() {
 
       location.reload();
     });
-  } else{
+  } else {
     isAuthorized = false;
     updateSigninButtons(false);
     // Clear cached token
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
-    
+
     location.reload();
   }
 }
@@ -139,7 +141,6 @@ export function getAccessToken() {
   const token = gapi.client.getToken();
   return token ? token.access_token : null;
 }
-
 
 /**
  * Shows or hides sign-in/out buttons based on auth status.
@@ -158,4 +159,6 @@ function updateSigninButtons(authorized) {
   }
 }
 
-export function getIsAuthorized() { return isAuthorized; }
+export function getIsAuthorized() {
+  return isAuthorized;
+}

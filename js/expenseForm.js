@@ -5,6 +5,7 @@
 
 import CONFIG from './config.js';
 import { addExpense } from './sheetsService.js';
+import { loader } from './utils.js';
 
 /**
  * Renders and handles the Add or Edit Expense form.
@@ -52,30 +53,32 @@ export function renderExpenseForm(container, onSuccess, expense) {
       </button>
     </div>
   `;
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const payer = formData.get('payer');
-    const description = formData.get('description').trim();
-    const amount = parseFloat(formData.get('amount'));
-    const recipients = Array.from(
-      form.querySelectorAll('input[name="recipients"]:checked')
-    ).map((cb) => cb.value);
-    if (recipients.length === 0) {
-      alert('Please select at least one recipient.');
-      return;
-    }
-    try {
-      // Cache last payer selection
-      localStorage.setItem('lastPayer', payer);
-      const payload = { payer, recipients, amount, description };
-      if (expense && expense.rowIndex) payload.rowIndex = expense.rowIndex;
-      await addExpense(payload);
-      if (typeof onSuccess === 'function') onSuccess();
-    } catch (err) {
-      console.error('Error adding expense:', err);
-      alert('Failed to add expense. See console for details.');
-    }
-  });
+  form.addEventListener('submit', (async e => {
+    loader(async () => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const payer = formData.get('payer');
+      const description = formData.get('description').trim();
+      const amount = parseFloat(formData.get('amount'));
+      const recipients = Array.from(
+        form.querySelectorAll('input[name="recipients"]:checked')
+      ).map((cb) => cb.value);
+      if (recipients.length === 0) {
+        alert('Please select at least one recipient.');
+        return;
+      }
+      try {
+        // Cache last payer selection
+        localStorage.setItem('lastPayer', payer);
+        const payload = { payer, recipients, amount, description };
+        if (expense && expense.rowIndex) payload.rowIndex = expense.rowIndex;
+        await addExpense(payload);
+        if (typeof onSuccess === 'function') onSuccess();
+      } catch (err) {
+        console.error('Error adding expense:', err);
+        alert('Failed to add expense. See console for details.');
+      }
+    });
+  }));
   container.appendChild(form);
 }

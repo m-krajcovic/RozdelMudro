@@ -118,16 +118,16 @@ export function signOut() {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(TOKEN_EXPIRY_KEY);
 
-      window.location.href = '/';
+      location.reload();
     });
-  } {
+  } else{
     isAuthorized = false;
     updateSigninButtons(false);
     // Clear cached token
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRY_KEY);
     
-    window.location.href = '/';
+    location.reload();
   }
 }
 
@@ -141,7 +141,6 @@ export function getAccessToken() {
 }
 
 
-let authorizedElements = [];
 /**
  * Shows or hides sign-in/out buttons based on auth status.
  * @param {boolean} authorized
@@ -157,19 +156,6 @@ function updateSigninButtons(authorized) {
     btnSignIn.style.display = 'inline-block';
     btnSignOut.style.display = 'none';
   }
-  authorizedElements.forEach(e => {
-    e.style.display = authorized ? 'block' : 'none';
-  });
-}
-
-
-/**
- * Adds an element to the list of authorized elements.
- * @param {Element} element
- */
-export function addAuthorizedElement(elements) {
-  authorizedElements = authorizedElements.concat(elements);
-  updateSigninButtons(isAuthorized);
 }
 
 export function getIsAuthorized() { return isAuthorized; }

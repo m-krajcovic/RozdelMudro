@@ -153,22 +153,24 @@ export function renderBalance(container, balances) {
       btn.textContent = 'Settle up';
       btn.className = 'ml-2 bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 text-sm';
       btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        try {
-          await addExpense({
-            payer: s.from,
-            recipients: [s.to],
-            amount: s.amount,
-            description: `Settlement payment from ${s.from} to ${s.to}`
-          });
-          const expenses = await getExpenses();
-          const newBalances = calculateSplits(expenses, Object.keys(balances));
-          renderBalance(container, newBalances);
-        } catch (err) {
-          console.error('Settlement failed', err);
-          alert('Failed to record settlement. See console for details.');
-          btn.disabled = false;
-        }
+        loader(async () => {
+          btn.disabled = true;
+          try {
+            await addExpense({
+              payer: s.from,
+              recipients: [s.to],
+              amount: s.amount,
+              description: `Settlement payment from ${s.from} to ${s.to}`
+            });
+            const expenses = await getExpenses();
+            const newBalances = calculateSplits(expenses, Object.keys(balances));
+            renderBalance(container, newBalances);
+          } catch (err) {
+            console.error('Settlement failed', err);
+            alert('Failed to record settlement. See console for details.');
+            btn.disabled = false;
+          }
+        });
       });
       li.appendChild(btn);
       ul.appendChild(li);

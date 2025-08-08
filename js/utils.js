@@ -52,9 +52,13 @@ export function calculateSplits(expenses, users) {
   return balances;
 }
 
-export function loader(callback) {
+export async function loader(callback) {
   const loader = document.getElementById('loader');
-  loader.style.display = 'block';
-  callback();
-  loader.style.display = 'none';
+  if (loader) {
+    loader.style.display = 'flex';
+    await callback();
+    loader.style.display = 'none';
+  } else {
+    await callback();
+  }
 }

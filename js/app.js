@@ -4,7 +4,7 @@
  */
 
 import CONFIG from './config.js';
-import { addAuthorizedElement, initAuth, getIsAuthorized, addSignInListener } from './googleAuth.js';
+import { initAuth, getIsAuthorized, addSignInListener } from './googleAuth.js';
 import { getExpenses } from './sheetsService.js';
 import { renderExpenseForm } from './expenseForm.js';
 import { renderExpenseList } from './expenseList.js';
@@ -13,11 +13,12 @@ import { calculateSplits } from './utils.js';
 
 import { renderSetupScreen } from './setup.js';
 import { renderSheetPicker } from './sheetPicker.js';
+import { loader } from './utils.js';
 
 async function initApp() {
-  addSignInListener(postAuth);
-  addAuthorizedElement(['nav-expenses', 'nav-balance', 'nav-add'].map(id => document.getElementById(id)));
+  toggleNavs(false);
 
+  addSignInListener(postAuth);
 
   // Initialize application (auth)
   await initAuth();
@@ -27,16 +28,22 @@ async function initApp() {
   await postAuth();
 }
 
+const NAV_IDS = ['nav-expenses', 'nav-balance', 'nav-add'];
+
+function toggleNavs(show) {
+  NAV_IDS.forEach(id => document.getElementById(id).style.display = show ? 'inline-block' : 'none');
+}
+
 async function postAuth() {
   const main = document.getElementById('app');
 
   // If no sheet ID provided, show setup screen  
   if (!CONFIG.SHEET_ID) {
-    ['nav-expenses', 'nav-balance', 'nav-add'].map(id => document.getElementById(id)).forEach(e => e.style.display = 'none');
+    toggleNavs(false);
     renderSetupScreen(main);
     return;
   }
-  ['nav-expenses', 'nav-balance', 'nav-add'].map(id => document.getElementById(id)).forEach(e => e.style.display = 'inline-block');
+  toggleNavs(true);
 
   // Show link to open the Google Sheet in a new tab
   const openSheetLink = document.getElementById('nav-opensheet');
@@ -67,42 +74,48 @@ async function postAuth() {
   } catch (err) {
     console.error("Failed to load user list from 'Users' sheet:", err);
     // If user is signed in but lacks permission, let them pick another spreadsheet
-    ['nav-expenses', 'nav-balance', 'nav-add'].forEach(id => document.getElementById(id).style.display = 'none');
+    toggleNavs(false);
     renderSheetPicker(main);
     return;
   }
   // Wire up Expenses nav button to fetch and render the expense list
   const navExpenses = document.getElementById('nav-expenses');
   if (navExpenses) {
-    navExpenses.addEventListener('click', async e => {
-      e.preventDefault();
-      const expenses = await getExpenses();
-      renderExpenseList(main, expenses);
-    });
+    navExpenses.addEventListener('click', (async e => {
+      loader(async () => {
+        e.preventDefault();
+        const expenses = await getExpenses();
+        renderExpenseList(main, expenses);
+      });
+    }));
   }
 
   // Wire up Add Expense nav button to show the expense form
   const navAdd = document.getElementById('nav-add');
   if (navAdd) {
-    navAdd.addEventListener('click', e => {
-      e.preventDefault();
-      // Render the expense entry form, and then refresh the expense list on success
-      renderExpenseForm(main, async () => {
-        const expenses = await getExpenses();
-        renderExpenseList(main, expenses);
+    navAdd.addEventListener('click', (async e => {
+      loader(async () => {
+        e.preventDefault();
+        // Render the expense entry form, and then refresh the expense list on success
+        renderExpenseForm(main, async () => {
+          const expenses = await getExpenses();
+          renderExpenseList(main, expenses);
+        });
       });
-    });
+    }));
   }
 
   // Wire up Balance nav button to fetch expenses, calculate splits, and render balances
   const navBalance = document.getElementById('nav-balance');
   if (navBalance) {
-    navBalance.addEventListener('click', async e => {
-      e.preventDefault();
-      const expenses = await getExpenses();
-      const balances = calculateSplits(expenses, CONFIG.USERS);
-      renderBalance(main, balances);
-    });
+    navBalance.addEventListener('click', (async e => {
+      loader(async () => {      
+        e.preventDefault();
+        const expenses = await getExpenses();
+        const balances = calculateSplits(expenses, CONFIG.USERS);
+        renderBalance(main, balances);
+      });
+    }));
   }
 
   navBalance.click();

@@ -4,6 +4,7 @@
  */
 import { renderExpenseForm } from './expenseForm.js';
 import { getExpenses, deleteExpense } from './sheetsService.js';
+import { loader } from './utils.js';
 
 /**
  * Renders the list of expenses in a simple table.
@@ -58,14 +59,16 @@ export function renderExpenseList(container, expenses) {
       delBtn.addEventListener('click', async e => {
         e.preventDefault();
         if (!confirm(`Delete expense "${exp.description}" for ${exp.payer}?`)) return;
-        try {
-          await deleteExpense(exp.rowIndex);
-          const updated = await getExpenses();
-          renderExpenseList(container, updated);
-        } catch (err) {
-          console.error('Failed to delete expense', err);
-          alert('Error deleting expense. See console for details.');
-        }
+        loader(async () => {
+          try {
+            await deleteExpense(exp.rowIndex);
+            const updated = await getExpenses();
+            renderExpenseList(container, updated);
+          } catch (err) {
+            console.error('Failed to delete expense', err);
+            alert('Error deleting expense. See console for details.');
+          }
+        });
       });
     }
   });

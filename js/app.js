@@ -27,13 +27,13 @@ async function initApp() {
   await postAuth();
 }
 
-const NAV_IDS = ['nav-expenses', 'nav-balance', 'nav-add'];
+const NAV_IDS = ['nav-expenses', 'nav-balance', 'nav-add', 'fab-add'];
 
 function toggleNavs(show) {
   NAV_IDS.forEach(
     (id) =>
       (document.getElementById(id).style.display = show
-        ? 'inline-block'
+        ? ''
         : 'none')
   );
 }
@@ -96,17 +96,25 @@ async function postAuth() {
 
   // Wire up Add Expense nav button to show the expense form
   const navAdd = document.getElementById('nav-add');
-  if (navAdd) {
-    navAdd.addEventListener('click', async (e) => {
-      loader(async () => {
-        e.preventDefault();
-        // Render the expense entry form, and then refresh the expense list on success
-        renderExpenseForm(main, async () => {
-          const expenses = await getExpenses();
-          renderExpenseList(main, expenses);
-        });
+  const fabAdd = document.getElementById('fab-add');
+  
+  const addExpenseHandler = async (e) => {
+    loader(async () => {
+      e.preventDefault();
+      // Render the expense entry form, and then refresh the expense list on success
+      renderExpenseForm(main, async () => {
+        const expenses = await getExpenses();
+        renderExpenseList(main, expenses);
       });
     });
+  };
+  
+  if (navAdd) {
+    navAdd.addEventListener('click', addExpenseHandler);
+  }
+  
+  if (fabAdd) {
+    fabAdd.addEventListener('click', addExpenseHandler);
   }
 
   // Wire up Balance nav button to fetch expenses, calculate splits, and render balances

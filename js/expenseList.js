@@ -18,15 +18,15 @@ export function renderExpenseList(container, expenses) {
     return;
   }
   const table = document.createElement('table');
-  table.className = 'w-full table-auto mb-4';
+  table.className = 'w-full table-fixed mb-4';
   const header = document.createElement('thead');
   header.innerHTML = `
     <tr class="text-left border-b">
-      <th class="px-2 py-1">Description</th>
+      <th class="px-2 py-1">Desc</th>
       <th class="px-2 py-1">Payer</th>
       <th class="px-2 py-1">Amount</th>
-      <th class="px-2 py-1">Recipients</th>
-      <th class="px-2 py-1">Actions</th>
+      <th class="px-2 py-1">Recips</th>
+      <th class="px-2 py-1"></th>
     </tr>
   `;
   const body = document.createElement('tbody');

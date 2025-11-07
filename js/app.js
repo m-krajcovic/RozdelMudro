@@ -125,7 +125,7 @@ async function postAuth() {
         e.preventDefault();
         const expenses = await getExpenses();
         const balances = calculateSplits(expenses, CONFIG.USERS);
-        renderBalance(main, balances);
+        renderBalance(main, balances, expenses);
       });
     });
   }

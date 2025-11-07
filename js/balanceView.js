@@ -88,7 +88,7 @@ function showUserNoteModal(user) {
   document.body.appendChild(overlay);
 }
 
-export function renderBalance(container, balances) {
+export function renderBalance(container, balances, expenses) {
   container.innerHTML = '';
   const lastPayer = localStorage.getItem('lastPayer') || CONFIG.USERS[0] || '';
   const storedFilter = localStorage.getItem('balanceFilter');
@@ -113,6 +113,22 @@ export function renderBalance(container, balances) {
     container.textContent = 'No balances to display.';
     return;
   }
+
+  const spentTotals = {};
+  expenses.forEach((e) => {
+    const amt = Number(e.amount) || 0;
+    if(e.description.startsWith('Settlement payment')){
+      return; // skip settlement payments from spent totals
+    }
+    let recipients = Array.isArray(e.recipients) && e.recipients.length
+      ? e.recipients
+      : Object.keys(balances);
+    const share = recipients.length > 0 ? amt / recipients.length : 0;
+    recipients.forEach((r) => {
+      spentTotals[r] = (spentTotals[r] || 0) + share;
+    });
+  });
+
   const table = document.createElement('table');
   table.className = 'w-full table-auto mb-4';
 
@@ -121,6 +137,7 @@ export function renderBalance(container, balances) {
     <tr class="text-left border-b">
       <th class="px-2 py-1">User</th>
       <th class="px-2 py-1">Balance</th>
+      <th class="px-2 py-1">Spent</th>
     </tr>
   `;
 
@@ -131,9 +148,11 @@ export function renderBalance(container, balances) {
     const bal = balances[user];
     const balStr =
       bal >= 0 ? `+${bal.toFixed(2)}` : `-${Math.abs(bal).toFixed(2)}`;
+    const spent = spentTotals[user] || 0;
     row.innerHTML = `
       <td class="px-2 py-1">${user}</td>
       <td class="px-2 py-1">${balStr}</td>
+      <td class="px-2 py-1">$${spent.toFixed(2)}</td>
     `;
     body.appendChild(row);
   });
@@ -182,7 +201,7 @@ export function renderBalance(container, balances) {
               expenses,
               Object.keys(balances)
             );
-            renderBalance(container, newBalances);
+            renderBalance(container, newBalances, expenses);
           } catch (err) {
             console.error('Settlement failed', err);
             alert('Failed to record settlement. See console for details.');
